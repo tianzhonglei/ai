@@ -4,7 +4,7 @@ from keras import models
 from keras import layers
 import matplotlib.pyplot as plt
 # 加载数据集
-(train_data, train_targets), (test_data, test_targets) = boston_housing.load_data()
+(train_data, train_targets), (test_data, test_targets) = boston_housing.load_data("c:\\work\\data\\boston_housing.npz")
 
 # 数据预处理
 mean = train_data.mean(axis=0)
@@ -50,8 +50,8 @@ for i in range(k):
     model = build_model()
     # 训练模型，verbose=0表示静默模式
     history = model.fit(partial_train_data, partial_train_targets, validation_data=(val_data, val_targets),
-                        epochs=num_epochs, batch_size=1, verbose=0)
-    # print(history.history.keys())
+                        epochs=num_epochs, batch_size=1, verbose=1)
+    print(history.history.keys())
     mae_history = history.history['val_mae']
     all_mae_histories.append(mae_history)
 
