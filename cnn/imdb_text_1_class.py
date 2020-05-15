@@ -24,7 +24,7 @@ hidden_dims = 250
 epochs = 2
 
 print('Loading data...')
-(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
+(x_train, y_train), (x_test, y_test) = imdb.load_data(path="C:\\Work\\data\\imdb.npz", num_words=max_features)
 print(len(x_train), 'train sequences')
 print(len(x_test), 'test sequences')
 
@@ -35,37 +35,22 @@ print('x_test shape:', x_test.shape)
 
 print('Build model...')
 model = Sequential()
-
-# we start off with an efficient embedding layer which maps
-# our vocab indices into embedding_dims dimensions
-model.add(Embedding(max_features,
-                    embedding_dims,
-                    input_length=maxlen))
+# we start off with an efficient embedding layer which maps our vocab indices into embedding_dims dimensions
+model.add(Embedding(max_features, embedding_dims, input_length=maxlen))
 model.add(Dropout(0.2))
-
-# we add a Convolution1D, which will learn filters
-# word group filters of size filter_length:
-model.add(Conv1D(filters,
-                 kernel_size,
-                 padding='valid',
-                 activation='relu',
-                 strides=1))
-# we use max pooling:
-model.add(GlobalMaxPooling1D())
-
-# We add a vanilla hidden layer:
-model.add(Dense(hidden_dims))
+# we add a Convolution1D, which will learn filters word group filters of size filter_length:
+model.add(Conv1D(filters,kernel_size,padding='valid',activation='relu',strides=1))
+model.add(GlobalMaxPooling1D()) # we use max pooling:
+model.add(Dense(hidden_dims)) # We add a vanilla hidden layer:
 model.add(Dropout(0.2))
 model.add(Activation('relu'))
-
-# We project onto a single unit output layer, and squash it with a sigmoid:
-model.add(Dense(1))
+model.add(Dense(1))# We project onto a single unit output layer, and squash it with a sigmoid:
 model.add(Activation('sigmoid'))
 
-model.compile(loss='binary_crossentropy',
-              optimizer='adam',
-              metrics=['accuracy'])
-model.fit(x_train, y_train,
-          batch_size=batch_size,
-          epochs=epochs,
-          validation_data=(x_test, y_test))
+model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+
+model.summary()
+
+model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,validation_data=(x_test, y_test))
+
+# 126s 5ms/step - loss: 0.2309 - acc: 0.9061 - val_loss: 0.2947 - val_acc: 0.8742
