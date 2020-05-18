@@ -18,7 +18,6 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
@@ -26,7 +25,7 @@ model.add(Dense(10, activation='softmax'))
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 model.summary()
-model.fit(training_images, training_labels, epochs=5)
+model.fit(training_images, training_labels, epochs=10)
 test_loss, test_accuracy = model.evaluate(test_images, test_labels)
 print('Test loss: {}, Test accuracy: {}'.format(test_loss, test_accuracy * 100))
 
