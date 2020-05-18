@@ -157,3 +157,5 @@ vgg16 = vgg((224, 224, 3), 5, data, label, mode_path)
 vgg16.generate_data()
 vgg16.train(batch_size=32,epoch=50)
 # vgg16.predict(imgpath)
+
+#https://www.jianshu.com/p/130171318888
