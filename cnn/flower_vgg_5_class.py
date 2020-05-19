@@ -1,14 +1,18 @@
-import numpy as np
-from keras.models import Model, load_model
-from keras.layers import Dropout, Flatten, Dense, Input
-from keras.layers.convolutional import Conv2D, MaxPooling2D
-from keras.utils import plot_model, to_categorical
-from keras import optimizers
 import os
+
 import cv2
+import numpy as np
+
 from keras.applications import VGG16
 from keras.applications.vgg16 import preprocess_input
 from keras.callbacks import TensorBoard
+from keras.models import Model, load_model, Sequential
+from keras.layers import Dropout, Flatten, Dense, Input, Conv2D, MaxPool2D
+#from keras.layers.convolutional import Conv2D, MaxPooling2D
+from keras.utils import to_categorical
+from keras import optimizers
+
+
 
 
 class vgg():
@@ -61,31 +65,31 @@ class vgg():
         # 2次卷积 一次池化 池化尺寸2*2 步长2*2
         x = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(input_1)
         x = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)  # 64 224*224
-        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 64 112*112
+        x = MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 64 112*112
 
         # 第二部分 2次卷积 一次池化
         # 卷积 128深度 大小是3*3 步长1 零填充
         x = Conv2D(filters=128, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)
         x = Conv2D(filters=128, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)  # 128 112*112
-        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 128 56*56
+        x = MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 128 56*56
 
         # 第三部分 3次卷积 一次池化 卷积256 3*3
         x = Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)
         x = Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)
         x = Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)  # 256 56*56
-        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 256 28*28
+        x = MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 256 28*28
 
         # 第四部分 3次卷积 一次池化 卷积 512 3*3
         x = Conv2D(filters=512, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)
         x = Conv2D(filters=512, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)
         x = Conv2D(filters=512, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)  # 512 28*28
-        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 512 14*14
+        x = MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 512 14*14
 
         # 第五部分 3次卷积 一次池化 卷积 512 3*3
         x = Conv2D(filters=512, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)
         x = Conv2D(filters=512, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)
         x = Conv2D(filters=512, kernel_size=(3, 3), strides=(1, 1), padding="SAME", activation="relu")(x)  # 512 14*14
-        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 512 7*7
+        x = MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding="SAME")(x)  # 512 7*7
 
         x = Flatten()(x)  # 扁平化，用在全连接过渡
         # 第六部分 三个全连接
@@ -97,10 +101,50 @@ class vgg():
         # 第三个全连接层 输出 softmax分类
         out_ = Dense(self.num_classes, activation="softmax")(x)
         model = Model(inputs=input_1, outputs=out_)
-        # print(model.summary())
+
+        model.summary()
+
         sgd = optimizers.sgd(lr=0.001, momentum=0.9, nesterov=True)
         model.compile(sgd, loss="categorical_crossentropy", metrics=["accuracy"])
-        # plot_model(model,"model.png")
+
+
+        return model
+
+    def vgg_model16(self):
+        model = Sequential()
+        model.add(Conv2D(input_shape=(224, 224, 3), filters=64, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+
+        model.add(Conv2D(filters=128, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=128, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+
+        model.add(Conv2D(filters=256, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=256, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=256, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+
+        model.add(Conv2D(filters=512, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=512, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=512, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+
+        model.add(Conv2D(filters=512, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=512, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(Conv2D(filters=512, kernel_size=(3, 3), padding="same", activation="relu"))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+
+        model.add(Flatten())
+        model.add(Dense(units=4096, activation="relu"))
+        model.add(Dense(units=4096, activation="relu"))
+        model.add(Dense(units=self.num_classes, activation="softmax"))
+
+        optimizer = optimizers.sgd(lr=0.001, momentum=0.9, nesterov=True)#SGD is better than Adam
+        #optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+        model.compile(optimizer, loss="categorical_crossentropy", metrics=["accuracy"])
+        model.summary()
+
         return model
 
     def pretrain_vgg(self):  # 采用预训练的VGG16,修改最后一层
@@ -109,10 +153,9 @@ class vgg():
         model = Dense(self.num_classes, activation='softmax')(model)  # 最后一层自定义
 
         model_vgg = Model(inputs=model_vgg.input, outputs=model, name='vgg16')
-        sgd = optimizers.SGD(lr=0.001, momentum=0.9, nesterov=True)
-        # sgd效果比Adam更好
-        # adam = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-        model_vgg.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+        optimizer = optimizers.SGD(lr=0.001, momentum=0.9, nesterov=True) # SGD is better than Adam
+        # optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+        model_vgg.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
         # model_vgg.summary()
         return model_vgg
 
@@ -134,6 +177,7 @@ class vgg():
         np.random.shuffle(x)
         np.random.seed(200)
         np.random.shuffle(y)
+        model.f
         model.fit(x, y, batch_size=batch_size, epochs=epoch, verbose=1, validation_split=0.3,
                   callbacks=[logs])
         model.save(save_path)
@@ -150,8 +194,8 @@ class vgg():
         print("预测结果是%s" % (self.classes[max_index[0] + 1]))
 
 
-data = r"C:\Work\data\flower_photos\train_data.npy"
-label = r"C:\Work\data\flower_photos\labels.npy"
+data = r"C:\Work\data\train_data.npy"
+label = r"C:\Work\data\labels.npy"
 mode_path = r"C:\Work\data\flower_photos\flowers_5classes.h5"
 vgg16 = vgg((224, 224, 3), 5, data, label, mode_path)
 vgg16.generate_data()

@@ -1,8 +1,9 @@
 import keras,os
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, MaxPool2D , Flatten
+from keras import optimizers
 from keras.preprocessing.image import ImageDataGenerator
-
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 
 trdata = ImageDataGenerator()
@@ -37,18 +38,11 @@ model.add(Dense(units=4096,activation="relu"))
 model.add(Dense(units=2, activation="softmax"))
 
 
-
-
-from keras.optimizers import Adam
-opt = Adam(lr=0.001)
-model.compile(optimizer=opt, loss=keras.losses.categorical_crossentropy, metrics=['accuracy'])
-
-
+#optimizer = optimizers.Adam(lr=0.001)
+optimizer = optimizers.sgd(lr=0.001, momentum=0.9, nesterov=True)
+model.compile(optimizer=optimizer, loss=keras.losses.categorical_crossentropy, metrics=['accuracy'])
 model.summary()
 
-
-
-from keras.callbacks import ModelCheckpoint, EarlyStopping
 checkpoint = ModelCheckpoint("vgg16_1.h5", monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 early = EarlyStopping(monitor='val_acc', min_delta=0, patience=20, verbose=1, mode='auto')
 
