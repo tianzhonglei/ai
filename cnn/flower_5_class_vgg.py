@@ -1,7 +1,8 @@
 import keras,os
-from keras.models import Sequential
-from keras.layers import Dense, Conv2D, MaxPool2D , Flatten
 from keras import optimizers
+from keras.models import Sequential, Model
+from keras.applications import VGG16
+from keras.layers import Dense, Conv2D, MaxPool2D , Flatten
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
@@ -11,7 +12,17 @@ traindata = trdata.flow_from_directory(directory="C:\\Work\\data\\cats_and_dogs_
 tsdata = ImageDataGenerator()
 testdata = tsdata.flow_from_directory(directory="C:\\Work\\data\\cats_and_dogs_filtered\\validation", target_size=(224,224))
 
+'''
+base_model = VGG16(include_top=False, weights='imagenet', input_shape=(224, 224, 3))  # 不包含最后一层
+model = Flatten(name='Flatten')(base_model.output)
+model = Dense(5, activation='softmax')(model)  # 最后一层自定义
 
+model = Model(inputs=base_model.input, outputs=model, name='vgg16')
+optimizer = optimizers.SGD(lr=0.001, momentum=0.9, nesterov=True)  # SGD is better than Adam
+# optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+model.summary()
+'''
 
 model = Sequential()
 model.add(Conv2D(input_shape=(224,224,3),filters=64,kernel_size=(3,3),padding="same", activation="relu"))
@@ -46,7 +57,7 @@ model.summary()
 checkpoint = ModelCheckpoint("vgg16_1.h5", monitor='val_acc', verbose=1, save_best_only=True, save_weights_only=False, mode='auto', period=1)
 early = EarlyStopping(monitor='val_acc', min_delta=0, patience=20, verbose=1, mode='auto')
 
-hist = model.fit_generator(steps_per_epoch=100,generator=traindata, validation_data= testdata, validation_steps=10,epochs=1,callbacks=[checkpoint,early])
+hist = model.fit_generator(steps_per_epoch=100,generator=traindata, validation_data= testdata, validation_steps=10,epochs=10,callbacks=[checkpoint,early])
 
 
 import matplotlib.pyplot as plt
