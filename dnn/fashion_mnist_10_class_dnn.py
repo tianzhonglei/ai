@@ -26,8 +26,7 @@ model.add(layers.Dense(10, activation='softmax'))
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
-
-model.fit(training_images, training_labels, epochs=1)
+model.fit(training_images, training_labels, epochs=10)
 print(model.summary())
 
 test_loss, test_acc = model.evaluate(test_images, test_labels)
