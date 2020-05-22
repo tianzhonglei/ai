@@ -1,3 +1,4 @@
+# Fashion minist 10 class CNN example
 # code is change from https://codelabs.developers.google.com/codelabs/tensorflow-lab3-convolutions/#0
 
 from keras.datasets import fashion_mnist
@@ -20,6 +21,7 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
