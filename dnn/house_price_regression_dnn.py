@@ -14,7 +14,7 @@ dataframe = read_csv("../data/housing.csv", delim_whitespace=True, header=None)
 dataset = dataframe.values
 X = dataset[:, 0:13]
 Y = dataset[:, 13]
-xtrain, xtest, ytrain, ytest=train_test_split(X, Y, test_size=0.15)
+xtrain, xtest, ytrain, ytest = train_test_split(X, Y, test_size=0.15)
 
 #stand data
 sc = StandardScaler()
