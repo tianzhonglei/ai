@@ -25,7 +25,7 @@ model.add(Dense(64, activation="relu"))
 model.add(Dense(1))
 model.compile(loss="mse", optimizer="adam")
 model.summary()
-model.fit(xtrain, ytrain, batch_size=12,epochs=200, verbose=0)
+model.fit(xtrain, ytrain, batch_size=12, epochs=200, verbose=0)
 
 ypred = model.predict(xtest)
 print(model.evaluate(xtrain, ytrain))
